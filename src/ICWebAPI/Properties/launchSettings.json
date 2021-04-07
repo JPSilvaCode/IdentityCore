@@ -9,7 +9,7 @@
     }
   },
   "profiles": {
-    "IIS Express": {
+    "IIS - Dev": {
       "commandName": "IISExpress",
       "launchBrowser": true,
       "launchUrl": "swagger",
@@ -17,7 +17,23 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "ICWebAPI": {
+    "IIS - Sta": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Staging"
+      }
+    },
+    "IIS - Prod": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Production"
+      }
+    },
+    "Self Hosting": {
       "commandName": "Project",
       "dotnetRunMessages": "true",
       "launchBrowser": true,
