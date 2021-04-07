@@ -14,6 +14,8 @@ namespace ICWebAPI.Configurations
 
             services.AddDbContext<ICContext>(options =>
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddDbContext<ICMemoryContext>(options => options.UseInMemoryDatabase("InMemoryDB"));
         }
     }
 }
