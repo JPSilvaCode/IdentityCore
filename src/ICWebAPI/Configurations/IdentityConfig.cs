@@ -1,12 +1,13 @@
 ﻿using ICWebAPI.Data;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Text;
 using ICWebAPI.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Text;
 
 namespace ICWebAPI.Configurations
 {
@@ -45,6 +46,12 @@ namespace ICWebAPI.Configurations
                     ValidIssuer = appSettings.Emissor
                 };
             });
+        }
+
+        public static void UseIdentityConfiguration(this IApplicationBuilder app)
+        {
+            app.UseAuthentication();
+            app.UseAuthorization();
         }
     }
 }

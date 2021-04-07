@@ -51,8 +51,7 @@ namespace ICWebAPI
 
             app.UseRouting();
 
-            app.UseAuthentication();
-            app.UseAuthorization();
+            app.UseIdentityConfiguration();
 
             app.UseEndpoints(endpoints =>
             {
