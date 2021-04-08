@@ -36,6 +36,8 @@ namespace ICWebAPI
 
             services.AddDatabaseConfiguration(Configuration);
 
+            services.AddEmailConfiguration(Configuration);
+
             services.AddSwaggerConfiguration();
         }
 
