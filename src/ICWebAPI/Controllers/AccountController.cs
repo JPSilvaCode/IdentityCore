@@ -19,14 +19,16 @@ namespace ICWebAPI.Controllers
     {
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly AppSettings _appSettings;
         private readonly IEmailSender _emailSender;
 
-        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, IOptions<AppSettings> appSettings, IEmailSender emailSender)
+        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, IOptions<AppSettings> appSettings, IEmailSender emailSender, RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
+            _roleManager = roleManager;
             _appSettings = appSettings.Value;
         }
 
@@ -229,6 +231,96 @@ namespace ICWebAPI.Controllers
                 AddError(error.Description);
 
             return CustomResponse();
+        }
+
+        [HttpPut]
+        [Route("user/{id:guid}/roles")]
+        public async Task<IActionResult> AssignRolesToUser(string id, [FromBody] string[] rolesToAssign)
+        {
+            var appUser = await _userManager.FindByIdAsync(id);
+
+            if (appUser == null) return NotFound();
+
+            var currentRolesUser = await _userManager.GetRolesAsync(appUser);
+
+            var rolesNotExists = rolesToAssign.Except(_roleManager.Roles.Select(x => x.Name)).ToArray();
+
+            if (rolesNotExists.Any())
+            {
+                AddError($"Roles '{string.Join(",", rolesNotExists)}' não existem no sistema");
+                return CustomResponse();
+            }
+
+            var removeResult = await _userManager.RemoveFromRolesAsync(appUser, currentRolesUser.ToArray());
+
+            if (!removeResult.Succeeded)
+            {
+                foreach (var error in removeResult.Errors)
+                    AddError(error.Description);
+
+                return CustomResponse();
+            }
+
+            var addResult = await _userManager.AddToRolesAsync(appUser, rolesToAssign);
+
+            if (addResult.Succeeded) return Ok();
+
+            foreach (var error in removeResult.Errors)
+                AddError(error.Description);
+
+            return CustomResponse();
+        }
+
+        [HttpPut]
+        [Route("user/{id:guid}/assignclaims")]
+        public async Task<IActionResult> AssignClaimsToUser(string id, [FromBody] List<ClaimBinding> claimsBinding)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var appUser = await _userManager.FindByIdAsync(id);
+
+            if (appUser == null) return NotFound();
+
+            foreach (var claimBinding in claimsBinding)
+            {
+                if (appUser.Claims.Any(c => c.ClaimType == claimBinding.Type))
+                {
+
+                    await _userManager.RemoveClaimAsync(appUser, new Claim(claimBinding.Type, claimBinding.Value));
+                }
+
+                await _userManager.AddClaimAsync(appUser, new Claim(claimBinding.Type, claimBinding.Value));
+            }
+
+            return Ok();
+        }
+
+        [HttpPut]
+        [Route("user/{id:guid}/removeclaims")]
+        public async Task<IActionResult> RemoveClaimsFromUser([FromUri] string id, [FromBody] List<ClaimBindingModel> claimsToRemove)
+        {
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var appUser = await this.AppUserManager.FindByIdAsync(id);
+
+            if (appUser == null)
+            {
+                return NotFound();
+            }
+
+            foreach (ClaimBindingModel claimModel in claimsToRemove)
+            {
+                if (appUser.Claims.Any(c => c.ClaimType == claimModel.Type))
+                {
+                    await this.AppUserManager.RemoveClaimAsync(id, ExtendedClaimsProvider.CreateClaim(claimModel.Type, claimModel.Value));
+                }
+            }
+
+            return Ok();
         }
 
         private async Task<UserResponseLogin> GetJwt(string email)

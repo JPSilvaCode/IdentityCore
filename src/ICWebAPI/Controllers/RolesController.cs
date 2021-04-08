@@ -164,12 +164,7 @@ namespace ICWebAPI.Controllers
                 if (!result.Succeeded) AddError($"User: {user} could not be removed from role");
             }
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            return Ok();
+            return !IsOperationValid() ? CustomResponse() : Ok();
         }
     }
 }
