@@ -234,14 +234,46 @@ namespace ICWebAPI.Controllers
         }
 
         [HttpPut]
-        [Route("user/{id:guid}/roles")]
-        public async Task<IActionResult> AssignRolesToUser(string id, [FromBody] string[] rolesToAssign)
+        [Route("user/{id:guid}/role/{role}")]
+        public async Task<IActionResult> AssignRoleToUser( string id, string role)
         {
             var appUser = await _userManager.FindByIdAsync(id);
 
             if (appUser == null) return NotFound();
 
+            var roles = await _roleManager.Roles.ToListAsync();
+
+            if (!roles.Any(r => r.Name.Equals(role)))
+            {
+                AddError($"Roles '{role}' não existe no sistema");
+                return CustomResponse();
+            }
+
             var currentRolesUser = await _userManager.GetRolesAsync(appUser);
+
+            if (currentRolesUser.Any(r => r.Equals(role)))
+            {
+                AddError($"Role '{role}' já existe para o usuário");
+                return CustomResponse();
+            }
+
+            var addResult = await _userManager.AddToRoleAsync(appUser, role);
+
+            if (addResult.Succeeded) return Ok();
+
+            foreach (var error in addResult.Errors)
+                AddError(error.Description);
+
+            return CustomResponse();
+        }
+
+        [HttpPut]
+        [Route("user/{id:guid}/roles")]
+        public async Task<IActionResult> AssignRolesToUser([FromRoute] string id, [FromBody] string[] rolesToAssign)
+        {
+            var appUser = await _userManager.FindByIdAsync(id);
+
+            if (appUser == null) return NotFound();
 
             var rolesNotExists = rolesToAssign.Except(_roleManager.Roles.Select(x => x.Name)).ToArray();
 
@@ -250,6 +282,8 @@ namespace ICWebAPI.Controllers
                 AddError($"Roles '{string.Join(",", rolesNotExists)}' não existem no sistema");
                 return CustomResponse();
             }
+
+            var currentRolesUser = await _userManager.GetRolesAsync(appUser);
 
             var removeResult = await _userManager.RemoveFromRolesAsync(appUser, currentRolesUser.ToArray());
 
@@ -265,7 +299,41 @@ namespace ICWebAPI.Controllers
 
             if (addResult.Succeeded) return Ok();
 
-            foreach (var error in removeResult.Errors)
+            foreach (var error in addResult.Errors)
+                AddError(error.Description);
+
+            return CustomResponse();
+        }
+
+        [HttpDelete]
+        [Route("user/{id:guid}/role/{role}")]
+        public async Task<IActionResult> RemoveRoleToUser(string id, string role)
+        {
+            var appUser = await _userManager.FindByIdAsync(id);
+
+            if (appUser == null) return NotFound();
+
+            var roles = await _roleManager.Roles.ToListAsync();
+
+            if (!roles.Any(r => r.Name.Equals(role)))
+            {
+                AddError($"Roles '{role}' não existe no sistema");
+                return CustomResponse();
+            }
+
+            var currentRolesUser = await _userManager.GetRolesAsync(appUser);
+
+            if (!currentRolesUser.Any(r => r.Equals(role)))
+            {
+                AddError($"Role '{role}' não existe para o usuário");
+                return CustomResponse();
+            }
+
+            var addResult = await _userManager.RemoveFromRoleAsync(appUser, role);
+
+            if (addResult.Succeeded) return Ok();
+
+            foreach (var error in addResult.Errors)
                 AddError(error.Description);
 
             return CustomResponse();
@@ -273,7 +341,7 @@ namespace ICWebAPI.Controllers
 
         [HttpPut]
         [Route("user/{id:guid}/assignclaims")]
-        public async Task<IActionResult> AssignClaimsToUser(string id, [FromBody] List<ClaimBinding> claimsBinding)
+        public async Task<IActionResult> AssignClaimsToUser([FromRoute] string id, [FromBody] List<ClaimBinding> claimsBinding)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
@@ -283,11 +351,9 @@ namespace ICWebAPI.Controllers
 
             foreach (var claimBinding in claimsBinding)
             {
-                if (appUser.Claims.Any(c => c.ClaimType == claimBinding.Type))
-                {
-
-                    await _userManager.RemoveClaimAsync(appUser, new Claim(claimBinding.Type, claimBinding.Value));
-                }
+                var claimsUser = await _userManager.GetClaimsAsync(appUser);
+                if (claimsUser.Any(c => c.Type == claimBinding.Type))
+                    await _userManager.RemoveClaimAsync(appUser, claimsUser.SingleOrDefault(c => c.Type == claimBinding.Type));
 
                 await _userManager.AddClaimAsync(appUser, new Claim(claimBinding.Type, claimBinding.Value));
             }
@@ -295,29 +361,21 @@ namespace ICWebAPI.Controllers
             return Ok();
         }
 
-        [HttpPut]
+        [HttpDelete]
         [Route("user/{id:guid}/removeclaims")]
-        public async Task<IActionResult> RemoveClaimsFromUser([FromUri] string id, [FromBody] List<ClaimBindingModel> claimsToRemove)
+        public async Task<IActionResult> RemoveClaimsFromUser([FromRoute] string id, [FromBody] List<ClaimBinding> claimsBinding)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            if (!ModelState.IsValid)
+            var appUser = await _userManager.FindByIdAsync(id);
+
+            if (appUser == null) return NotFound();
+
+            foreach (var claimBinding in claimsBinding)
             {
-                return BadRequest(ModelState);
-            }
-
-            var appUser = await this.AppUserManager.FindByIdAsync(id);
-
-            if (appUser == null)
-            {
-                return NotFound();
-            }
-
-            foreach (ClaimBindingModel claimModel in claimsToRemove)
-            {
-                if (appUser.Claims.Any(c => c.ClaimType == claimModel.Type))
-                {
-                    await this.AppUserManager.RemoveClaimAsync(id, ExtendedClaimsProvider.CreateClaim(claimModel.Type, claimModel.Value));
-                }
+                var claimsUser = await _userManager.GetClaimsAsync(appUser);
+                if (claimsUser.Any(c => c.Type == claimBinding.Type))
+                    await _userManager.RemoveClaimAsync(appUser, claimsUser.SingleOrDefault(c => c.Type == claimBinding.Type));
             }
 
             return Ok();
