@@ -1,6 +1,6 @@
-﻿using ICWebAPI.Data;
+﻿using ICWebAPI.Authorization;
+using ICWebAPI.Data;
 using ICWebAPI.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -20,28 +20,28 @@ namespace ICWebAPI.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [CustomAuthorize("Customer", "R")]
         public async Task<IEnumerable<Customer>> Get()
         {
             return await _context.Customers.ToListAsync();
         }
 
         [HttpGet("{id:guid}")]
-        [Authorize]
+        [CustomAuthorize("Customer", "R")]
         public async Task<Customer> Get(Guid id)
         {
             return await _context.Customers.FirstOrDefaultAsync(c => c.Id.Equals(id));
         }
 
         [HttpGet("{email}")]
-        [Authorize]
+        [CustomAuthorize("Customer", "R")]
         public async Task<Customer> Get(string email)
         {
             return await _context.Customers.FirstOrDefaultAsync(c => c.Email.Equals(email));
         }
 
         [HttpPost]
-        [Authorize]
+        [CustomAuthorize("Customer", "W")]
         public async Task<IActionResult> Post([FromBody] Customer customer)
         {
             if (!ModelState.IsValid)
@@ -54,7 +54,7 @@ namespace ICWebAPI.Controllers
         }
 
         [HttpPut]
-        [Authorize]
+        [CustomAuthorize("Customer", "W")]
         public async Task<IActionResult> Put([FromBody] Customer customer)
         {
             if (!ModelState.IsValid)
@@ -67,7 +67,7 @@ namespace ICWebAPI.Controllers
         }
 
         [HttpDelete]
-        [Authorize]
+        [CustomAuthorize("Customer", "D")]
         public async Task<IActionResult> Delete(Guid id)
         {
             var customer = await _context.Customers.FirstOrDefaultAsync(c => c.Id.Equals(id));

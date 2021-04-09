@@ -17,15 +17,15 @@ namespace ICWebAPI.Configurations
         {
             if (services == null) throw new ArgumentNullException(nameof(services));
 
-            services.AddDefaultIdentity<IdentityUser>()
+            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ICContext>()
                 .AddDefaultTokenProviders();
 
-            services.Configure<IdentityOptions>(options =>
-            {
-                options.SignIn.RequireConfirmedEmail = true;
-            });
+            //services.Configure<IdentityOptions>(options =>
+            //{
+            //    options.SignIn.RequireConfirmedEmail = true;
+            //});
 
             var appSettingsSection = configuration.GetSection("AppSettings");
             services.Configure<AppSettings>(appSettingsSection);

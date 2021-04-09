@@ -3,10 +3,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ICWebAPI.Controllers
 {
     [Route("[controller]")]
+    [Authorize(Roles = "Admin")]
     public class RolesController : MainController
     {
         private readonly RoleManager<IdentityRole> _roleManager;

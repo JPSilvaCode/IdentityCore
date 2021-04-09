@@ -5,10 +5,12 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ICWebAPI.Controllers
 {
     [Route("[controller]")]
+    [Authorize(Roles = "Admin")]
     public class ClaimsController : MainController
     {
         private readonly UserManager<IdentityUser> _userManager;
@@ -40,7 +42,6 @@ namespace ICWebAPI.Controllers
 
             if (claims == null) return NotFound();
 
-            //var result = claims.GroupBy(c => c.Type, c => c.Value, (key, g) => new { key}).ToList();
             var result = claims.GroupBy(c => new {c.Type, c.Value}, (key, g) => new {key, g}).Select(g => new { g.key.Type, g.key.Value }).ToList();
 
             return Ok(result);
