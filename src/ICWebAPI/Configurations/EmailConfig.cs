@@ -12,7 +12,7 @@ namespace ICWebAPI.Configurations
         {
             if (services == null) throw new ArgumentNullException(nameof(services));
 
-            services.AddTransient<IEmailSender, EmailSender>();
+            services.AddTransient<IEmailService, EmailService>();
             services.Configure<EmailSetting>(configuration.GetSection("EmailSetting"));
         }
     }

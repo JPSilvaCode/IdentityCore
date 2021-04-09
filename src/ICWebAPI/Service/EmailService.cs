@@ -6,11 +6,11 @@ using Microsoft.Extensions.Options;
 
 namespace ICWebAPI.Service
 {
-    public class EmailSender : IEmailSender
+    public class EmailService : IEmailService
     {
         private readonly EmailSetting _emailSetting;
 
-        public EmailSender(IOptions<EmailSetting> emailSetting)
+        public EmailService(IOptions<EmailSetting> emailSetting)
         {
             _emailSetting = emailSetting.Value;
         }
