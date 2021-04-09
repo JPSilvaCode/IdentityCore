@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ICWebAPI.Controllers
 {
@@ -67,7 +68,7 @@ namespace ICWebAPI.Controllers
         }
 
         [HttpDelete]
-        [CustomAuthorize("Customer", "D")]
+        [Authorize(Policy = "DeleteCustomerPolicy")]
         public async Task<IActionResult> Delete(Guid id)
         {
             var customer = await _context.Customers.FirstOrDefaultAsync(c => c.Id.Equals(id));

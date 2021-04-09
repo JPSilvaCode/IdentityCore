@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Text;
+using ICWebAPI.Authorization;
 
 namespace ICWebAPI.Configurations
 {
@@ -22,10 +23,11 @@ namespace ICWebAPI.Configurations
                 .AddEntityFrameworkStores<ICContext>()
                 .AddDefaultTokenProviders();
 
-            //services.Configure<IdentityOptions>(options =>
-            //{
-            //    options.SignIn.RequireConfirmedEmail = true;
-            //});
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("DeleteCustomerPolicy", policy =>
+                    policy.Requirements.Add(new DeleteCustomerRequirement("D")));
+            });
 
             var appSettingsSection = configuration.GetSection("AppSettings");
             services.Configure<AppSettings>(appSettingsSection);
