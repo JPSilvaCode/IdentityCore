@@ -23,13 +23,13 @@ namespace ICWebAPI.Authorization
             return Task.CompletedTask;
         }
 
-        private bool IsAdministrator() =>
-            GetClaim(ClaimTypes.Role, AdministratorRoleName);
+        private bool IsAdministrator()
+            => GetClaim(ClaimTypes.Role, AdministratorRoleName);
 
-        private bool HasRequirements(DeleteCustomerRequirement requirement) =>
-            GetClaim("Customer", requirement.RequiredPermission);
+        private bool HasRequirements(DeleteCustomerRequirement requirement)
+            => GetClaim("Customer", requirement.RequiredPermission);
 
-        private bool GetClaim(string type, string value) => _context.User.Claims.Any(c => c.Type == type &&
-            c.Value.Split(',').Contains(value));
+        private bool GetClaim(string type, string value)
+            => _context.User.Claims.Any(c => c.Type == type && c.Value.Split(',').Contains(value));
     }
 }
