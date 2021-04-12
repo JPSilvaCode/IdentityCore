@@ -1,6 +1,8 @@
-﻿using ICWebAPI.Data;
+﻿using ICWebAPI.Authorization;
+using ICWebAPI.Data;
 using ICWebAPI.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -8,7 +10,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Text;
-using ICWebAPI.Authorization;
 
 namespace ICWebAPI.Configurations
 {
@@ -57,6 +58,8 @@ namespace ICWebAPI.Configurations
                     ClockSkew = TimeSpan.Zero
                 };
             });
+
+            services.AddSingleton<IAuthorizationHandler, DeleteCustomerRequirementHandler>();
         }
 
         public static void UseIdentityConfiguration(this IApplicationBuilder app)

@@ -32,8 +32,6 @@ namespace ICWebAPI
         {
             services.AddIdentityConfiguration(Configuration);
 
-            services.AddIdentityConfiguration();
-
             services.AddApiConfiguration();
 
             services.AddDatabaseConfiguration(Configuration);
