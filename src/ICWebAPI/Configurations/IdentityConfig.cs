@@ -29,6 +29,8 @@ namespace ICWebAPI.Configurations
                     policy.Requirements.Add(new DeleteCustomerRequirement("D")));
             });
 
+            services.Configure<AppTokenSettings>(configuration.GetSection("AppTokenSettings"));
+
             var appSettingsSection = configuration.GetSection("AppSettings");
             services.Configure<AppSettings>(appSettingsSection);
 
@@ -50,7 +52,9 @@ namespace ICWebAPI.Configurations
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidAudience = appSettings.ValidoEm,
-                    ValidIssuer = appSettings.Emissor
+                    ValidIssuer = appSettings.Emissor,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
                 };
             });
         }

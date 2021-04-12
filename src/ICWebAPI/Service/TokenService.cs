@@ -20,7 +20,7 @@ namespace ICWebAPI.Service
                 Issuer = appSettings.Emissor,
                 Audience = appSettings.ValidoEm,
                 Subject = identityClaims,
-                Expires = DateTime.UtcNow.AddHours(appSettings.ExpiracaoHoras),
+                Expires = DateTime.UtcNow.AddSeconds(appSettings.Expiracao),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             });
 
