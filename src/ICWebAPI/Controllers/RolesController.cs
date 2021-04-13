@@ -7,7 +7,8 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace ICWebAPI.Controllers
 {
-    [Route("[controller]")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     [Authorize(Roles = "Admin")]
     public class RolesController : MainController
     {

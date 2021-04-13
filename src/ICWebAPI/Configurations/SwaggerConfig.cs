@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerUI;
 using System;
 
 namespace ICWebAPI.Configurations
@@ -11,16 +13,27 @@ namespace ICWebAPI.Configurations
         {
             if (services == null) throw new ArgumentNullException(nameof(services));
 
+            //services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
+
             services.AddSwaggerGen(s =>
             {
-                s.SwaggerDoc("v1", new OpenApiInfo
+                var provider = services.BuildServiceProvider().GetRequiredService<IApiVersionDescriptionProvider>();
+
+                foreach (var description in provider.ApiVersionDescriptions)
                 {
-                    Version = "v1",
-                    Title = "EF Core",
-                    Description = "EF Core API Swagger",
-                    Contact = new OpenApiContact { Name = "João Paulo", Email = "contato@joaopaulo.com.br", Url = new Uri("http://www.joaopaulo.com.br") },
-                    License = new OpenApiLicense { Name = "MIT", Url = new Uri("https://github.com/JPSilvaCode/EFCore") }
-                });
+                    s.SwaggerDoc(
+                        description.GroupName,
+                        new OpenApiInfo
+                        {
+                            Version = description.ApiVersion.ToString(),
+                            Title = "EF Core",
+                            Description = "EF Core API Swagger",
+                            Contact = new OpenApiContact { Name = "João Paulo", Email = "contato@joaopaulo.com.br", Url = new Uri("http://www.joaopaulo.com.br") },
+                            License = new OpenApiLicense { Name = "MIT", Url = new Uri("https://github.com/JPSilvaCode/EFCore") }
+                        });
+                }
+
+                //s.OperationFilter<SwaggerDefaultValues>();
 
                 s.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
@@ -43,20 +56,27 @@ namespace ICWebAPI.Configurations
                                 Id = "Bearer"
                             }
                         },
-                        new string[] {}
+                        Array.Empty<string>()
                     }
                 });
             });
         }
 
-        public static void UseSwaggerSetup(this IApplicationBuilder app)
+        public static void UseSwaggerSetup(this IApplicationBuilder app, IApiVersionDescriptionProvider provider)
         {
             if (app == null) throw new ArgumentNullException(nameof(app));
+            if (provider == null) throw new ArgumentNullException(nameof(provider));
 
             app.UseSwagger();
-            app.UseSwaggerUI(c =>
+
+            app.UseSwaggerUI(options =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+                foreach (var description in provider.ApiVersionDescriptions)
+                {
+                    options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
+                }
+
+                options.DocExpansion(DocExpansion.List);
             });
         }
     }

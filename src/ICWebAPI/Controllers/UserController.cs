@@ -12,7 +12,8 @@ using System.Threading.Tasks;
 
 namespace ICWebAPI.Controllers
 {
-    [Route("[controller]")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class UserController : MainController
     {
         private readonly UserManager<IdentityUser> _userManager;

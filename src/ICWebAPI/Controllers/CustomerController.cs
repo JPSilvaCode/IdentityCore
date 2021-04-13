@@ -1,16 +1,18 @@
 ﻿using ICWebAPI.Authorization;
 using ICWebAPI.Data;
 using ICWebAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 
 namespace ICWebAPI.Controllers
 {
-    [Route("[controller]")]
+    [ApiVersion("1.0")]
+    [ApiVersion("2.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class CustomerController : MainController
     {
         private readonly ICMemoryContext _context;
@@ -20,28 +22,28 @@ namespace ICWebAPI.Controllers
             _context = context;
         }
 
-        [HttpGet]
+        [HttpGet, MapToApiVersion("1.0")]
         [CustomAuthorize("Customer", "R")]
         public async Task<IEnumerable<Customer>> Get()
         {
             return await _context.Customers.ToListAsync();
         }
 
-        [HttpGet("{id:guid}")]
+        [HttpGet("{id:guid}"), MapToApiVersion("1.0")]
         [CustomAuthorize("Customer", "R")]
         public async Task<Customer> Get(Guid id)
         {
             return await _context.Customers.FirstOrDefaultAsync(c => c.Id.Equals(id));
         }
 
-        [HttpGet("{email}")]
+        [HttpGet("{email}"), MapToApiVersion("1.0")]
         [CustomAuthorize("Customer", "R")]
         public async Task<Customer> Get(string email)
         {
             return await _context.Customers.FirstOrDefaultAsync(c => c.Email.Equals(email));
         }
 
-        [HttpPost]
+        [HttpPost, MapToApiVersion("1.0")]
         [CustomAuthorize("Customer", "W")]
         public async Task<IActionResult> Post([FromBody] Customer customer)
         {
@@ -54,7 +56,7 @@ namespace ICWebAPI.Controllers
             return Ok();
         }
 
-        [HttpPut]
+        [HttpPut, MapToApiVersion("1.0")]
         [CustomAuthorize("Customer", "W")]
         public async Task<IActionResult> Put([FromBody] Customer customer)
         {
@@ -67,7 +69,7 @@ namespace ICWebAPI.Controllers
             return Ok();
         }
 
-        [HttpDelete]
+        [HttpDelete, MapToApiVersion("1.0")]
         [Authorize(Policy = "DeleteCustomerPolicy")]
         public async Task<IActionResult> Delete(Guid id)
         {
