@@ -34,6 +34,7 @@ namespace ICWebAPI.Configurations
                 }
 
                 //s.OperationFilter<SwaggerDefaultValues>();
+                //s.OperationFilter<AddApiVersionExampleValueOperationFilter>();
 
                 s.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
