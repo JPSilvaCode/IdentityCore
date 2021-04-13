@@ -6,9 +6,9 @@
 <p align="center">Projeto para estudo do Identity Core</p>
 
 ### 🛠 Tecnologias
-- Web API (Swagger (Authentication))
+- Web API (Swagger (Authentication, Versioning, Filters))
 - Identity (Authentication, Authorization, Roles, Claims, Filters, Policies)
-- JWT
+- JWT (Refresh Token)
 - EF in Memory
 - Email Service
 - IoC (DI)
