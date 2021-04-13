@@ -18,22 +18,22 @@ namespace ICWebAPI.Authorization
 
         public Guid ObterUserId()
         {
-            return /*EstaAutenticado() ? Guid.Parse(_accessor.HttpContext.User.GetUserId()) :*/ Guid.Empty;
+            return EstaAutenticado() ? Guid.Parse(_accessor.HttpContext.User.GetUserId()) : Guid.Empty;
         }
 
         public string ObterUserEmail()
         {
-            return /*EstaAutenticado() ? _accessor.HttpContext.User.GetUserEmail() :*/ "";
+            return EstaAutenticado() ? _accessor.HttpContext.User.GetUserEmail() : "";
         }
 
         public string ObterUserToken()
         {
-            return /*EstaAutenticado() ? _accessor.HttpContext.User.GetUserToken() :*/ "";
+            return EstaAutenticado() ? _accessor.HttpContext.User.GetUserToken() : "";
         }
 
         public string ObterUserRefreshToken()
         {
-            return /*EstaAutenticado() ? _accessor.HttpContext.User.GetUserRefreshToken() :*/ "";
+            return EstaAutenticado() ? _accessor.HttpContext.User.GetUserRefreshToken() : "";
         }
 
         public bool EstaAutenticado()
